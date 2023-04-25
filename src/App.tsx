@@ -21,7 +21,7 @@ const App = () => {
   const apikey = "3c67b397"
 
   const handleGetData = (str: string) => {
-    fetch("http://www.omdbapi.com/?s=" + str + "&apikey=" + apikey, {
+    fetch("https://www.omdbapi.com/?s=" + str + "&apikey=" + apikey, {
       method: "GET",
       mode: 'cors',
       headers: {

@@ -8,7 +8,6 @@ const App = () => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm();
-  const [, forceUpdate] = useState({});
 
   const onFinish = (values: any) => {
     setLoading(true)
@@ -94,6 +93,7 @@ const App = () => {
         {data.map((obj: any, index) => {
           return (
             <Card
+              style={{ marginBottom: 10 }}
               key={index}
               hoverable
               cover={<Image alt="example" src={obj.image} />}

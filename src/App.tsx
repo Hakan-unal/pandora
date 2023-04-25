@@ -21,7 +21,13 @@ const App = () => {
   const apikey = "3c67b397"
 
   const handleGetData = (str: string) => {
-    fetch("http://www.omdbapi.com/?s=" + str + "&apikey=" + apikey)
+    fetch("http://www.omdbapi.com/?s=" + str + "&apikey=" + apikey, {
+      method: "GET",
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
       .then(response => response.json())
       .then(data => {
         const tempArr = data.Search.map((movie: any) => {

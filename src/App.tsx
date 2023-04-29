@@ -1,117 +1,101 @@
 import { useState, useEffect } from "react";
-import { Row, Col, Card, Spin, Form, Input, Button, Image } from 'antd';
-import Meta from "antd/es/card/Meta";
-import { showNotification } from "./components/general/notification";
-
+import { Row, Col, Card, Spin, Form, Input, Button, Image, Progress, Divider } from 'antd';
+import { data } from "./staticData/cards"
+import useWindowSize from "./hooks/useWindowSize";
 
 const App = () => {
-  const [data, setData] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [form] = Form.useForm();
+  const [gameData, setGameData] = useState<any>([])
+  const [result, setResult] = useState<any>(0)
 
-  const onFinish = (values: any) => {
-    setLoading(true)
-    handleGetData(values.search)
-  };
+  const size = useWindowSize()
 
-  const onFinishFailed = (errorInfo: any) => {
-    showNotification("error", "Hata", "Formda hatalı alanlar mevcut", null)
-  };
 
-  const apikey = "3c67b397"
+  const shuffle = (array: any) => {
+    let currentIndex = array.length, randomIndex;
 
-  const handleGetData = (str: string) => {
-    fetch("http://www.omdbapi.com/?s=" + str + "&apikey=" + apikey, {
-      method: "GET",
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-      .then(response => response.json())
-      .then(data => {
-        const tempArr = data.Search.map((movie: any) => {
-          return {
-            name: movie.Title,
-            year: movie.Year,
-            key: movie.imdbID,
-            image: movie.Poster
-          }
-        })
-        setData(tempArr)
-        setLoading(false)
-      }).catch(() => {
-        showNotification("error", "Hata", "Sonuç Bulunamadı Tekrar Deneyin", null)
-        setLoading(false)
-      })
+    while (currentIndex != 0) {
+
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+
+    return array;
+
   }
 
+  const handleCard = (index: number, id: number) => {
+    const tempArr = [...gameData]
+
+    console.log("index", index)
+    console.log("id", id)
+
+    if (tempArr[index].isStatic) return
+
+
+    let flag1: number = 0;
+    let flag2: number = 0;
+
+
+    tempArr.map((obj) => {
+      if (obj.id === id && obj.isShow) flag1++
+      if (obj.isShow && !obj.isStatic) flag2++
+    })
+    if (flag1 === 2) {
+      tempArr.map((obj) => {
+        if (flag1 === 2 && obj.id === id) {
+          obj.isShow = true
+          obj.isStatic = true
+        }
+      })
+      setGameData(tempArr)
+
+    } else if (flag2 === 2) {
+      tempArr.map((obj) => {
+        if (!obj.isStatic) obj.isShow = false
+      })
+      setGameData(tempArr)
+
+    } else {
+      tempArr[index].isShow = !tempArr[index].isShow
+
+      setGameData(tempArr)
+    }
+    handleResult(tempArr)
+  }
+
+  const handleResult = (arr: any) => {
+    let counter: number = 0
+    const tempArr = [...arr]
+    tempArr.map((obj) => obj.isStatic && counter++)
+
+    setResult(counter / 2 * 100 / 8)
+  }
 
   useEffect(() => {
-    handleGetData("the%20fault")
+    const tempArr = shuffle(data)
+    setGameData(tempArr)
   }, [])
 
 
 
-  return (<Spin spinning={loading}>
+  return (
     <Row>
-      <Col style={{ marginBottom: 25 }} sm={{ offset: 9, span: 6 }} xs={{ offset: 2, span: 20 }}>
-        <Form form={form} name="horizontal_login" layout="inline" onFinish={onFinish} onFinishFailed={onFinishFailed}>
-          <Row>
-            <Col sm={16}>
-              <Form.Item
-                name="search"
-                rules={[
-                  { required: true, message: 'Please input your search!' },
-                ]}
-              >
-                <Input
-                  maxLength={40}
-                  showCount
-                  placeholder="Search Movie"
-                />
-              </Form.Item>
-            </Col>
-            <Col sm={8}>
-
-              <Form.Item shouldUpdate>
-                {() => (
-                  <Button
-                    block
-                    type="dashed"
-                    htmlType="submit"
-                    disabled={
-                      !form.isFieldsTouched(true) ||
-                      !!form.getFieldsError().filter(({ errors }) => errors.length).length
-                    }
-                  >
-                    Search
-                  </Button>
-                )}
-              </Form.Item>
-            </Col>
-
-          </Row>
-
-        </Form>
+      <Col xs={{ span: 4, offset: 10 }}>
+        <Progress type="circle" strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} percent={result} />
       </Col>
-      <Col sm={{ offset: 9, span: 6 }} xs={{ offset: 2, span: 20 }}>
-        {data.map((obj: any, index) => {
-          return (
-            <Card
-              style={{ marginBottom: 10 }}
-              key={index}
-              hoverable
-              cover={<Image alt="example" src={obj.image} />}
-            >
-              <Meta title={obj.name} description={obj.year} />
-            </Card>
-          )
-        })}
+      <Divider />
+      {gameData.map((obj: any, index: number) => {
+        return (
+          <Col onClick={() => handleCard(index, obj.id)} key={index} xs={5} style={{ margin: 5 }}  >
+            <Image width={size.width / 6} height={size.width / 6} preview={false} src={obj.isShow ? obj.src : "./cover.png"} />
+          </Col>
+        )
+      })}
 
-      </Col>
     </Row>
-  </Spin>
   )
 }
 

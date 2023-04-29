@@ -92,8 +92,8 @@ const App = () => {
   return (
     <Row >
       <Col xs={{ span: 4, offset: 10 }}>
-        <Progress type="circle" strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} percent={result} size={size.width / 6} />
-        <Button block onClick={() => handleBugFix()}>Match</Button>
+        <Progress type="circle" strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} percent={result} size={"small"} />
+        <Button size="small" onClick={() => handleBugFix()}>Match</Button>
 
       </Col>
 
@@ -101,7 +101,7 @@ const App = () => {
       {gameData.map((obj: any, index: number) => {
         return (
           <Col onClick={() => handleCard(index, obj.id)} key={index} xs={5} style={{ margin: 5 }}  >
-            <Image width={size.width / 6} height={size.width / 6} preview={false} src={obj.isShow ? obj.src : "./cover.png"} />
+            <Image width={size.width < 1000 ? size.width / 6 : size.width / 12} height={size.width < 1000 ? size.width / 6 : size.width / 12} preview={false} src={obj.isShow ? obj.src : "./cover.png"} />
           </Col>
         )
       })}

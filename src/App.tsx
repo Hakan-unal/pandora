@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Row, Col, Card, Spin, Form, Input, Button, Image, Progress, Divider } from 'antd';
+import { Row, Col, Image, Progress, Divider, Button } from 'antd';
 import { data } from "./staticData/cards"
 import useWindowSize from "./hooks/useWindowSize";
 
 const App = () => {
   const [gameData, setGameData] = useState<any>([])
-  const [result, setResult] = useState<any>(0)
+  const [result, setResult] = useState<number>(0)
+  const [bugIndex, setBugIndex] = useState<number>(0)
+  const [bugID, setBugID] = useState<number>(0)
 
   const size = useWindowSize()
 
@@ -26,11 +28,15 @@ const App = () => {
 
   }
 
+
+  const handleBugFix = () => {
+    handleCard(bugIndex, bugID)
+  }
+
   const handleCard = (index: number, id: number) => {
     const tempArr = [...gameData]
-
-    console.log("index", index)
-    console.log("id", id)
+    setBugIndex(index)
+    setBugID(id)
 
     if (tempArr[index].isStatic) return
 
@@ -63,6 +69,8 @@ const App = () => {
 
       setGameData(tempArr)
     }
+
+
     handleResult(tempArr)
   }
 
@@ -82,10 +90,13 @@ const App = () => {
 
 
   return (
-    <Row>
+    <Row >
       <Col xs={{ span: 4, offset: 10 }}>
-        <Progress type="circle" strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} percent={result} />
+        <Progress type="circle" strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} percent={result} size={size.width / 6} />
+        <Button block onClick={() => handleBugFix()}>Match</Button>
+
       </Col>
+
       <Divider />
       {gameData.map((obj: any, index: number) => {
         return (
